@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        label{
+            display: block;
+            width: 80px;
+        }
+    </style>
+</head>
+<body>
+    <label>Name</label><input id="Namebox" type="text">
+    <label>RollNo</label><input id="Rollbox" type="text">
+    <label>Section</label><input id="Secbox" type="text">
+    <label>Name</label>
+    <select id="Genbox">
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+    </select>
+    <hr>
+    <button id="Insbtn">INSERT</button>
+    <button id="Selbtn">SELECT</button>
+    <button id="Updbtn">UPDATE</button>
+    <button id="Delbtn">DELETE</button>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.7/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+      
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyDdv5VkG1Go61pCGTAWiMvVUIwKk5ZkM40",
+          authDomain: "fire9db-7dc00.firebaseapp.com",
+          projectId: "fire9db-7dc00",
+          storageBucket: "fire9db-7dc00.appspot.com",
+          messagingSenderId: "1085566079164",
+          appId: "1:1085566079164:web:d7f4cfca7f21b991f100b9"
+        };
+      
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        import{
+            getFirestore,doc,setDoc,getDoc,collection,addDoc,updateDoc,deleteDoc,deleteField
+        }
+        from "https://www.gstatic.com/firebasejs/9.6.7/firebase-firestore.js";
+        const db=getFirestore();
+        let Namebox=document.getElementById("Namebox");
+        let Rollbox=document.getElementById("Rollbox");
+        let Secbox=document.getElementById("Secbox");
+        let Genbox=document.getElementById("Genbox");
+
+        let insBtn=document.getElementById("Insbtn");
+        let selBtn=document.getElementById("Selbtn");
+        let updBtn=document.getElementById("Updbtn");
+        let delBtn=document.getElementById("Delbtn");
+
+        async function AddDocument_AutoID(){
+            var ref=collection(db,"TheStudentList");
+            const docRef=await addDoc(
+                ref,{
+                    NameOfStd:Namebox.value,
+                    RollNo:Rollbox.value,
+                    Section:Secbox.value,
+                    Gender:Genbox.value  
+                }
+            )
+            .then(()=>{
+                alert("Data added successfully");
+            })
+            .catch((error)=>{
+                alert("Unsuccessful operation,error:"+error);
+            });
+        }
+        async function AddDocument_CustomID(){
+            var ref=doc(db,"TheStudentList",Rollbox.value);
+            await setDoc(
+                ref,{
+                    NameOfStd:Namebox.value,
+                    RollNo:Rollbox.value,
+                    Section:Secbox.value,
+                    Gender:Genbox.value  
+                }
+            )
+            .then(()=>{
+                alert("Data added successfully");
+            })
+            .catch((error)=>{
+                alert("Unsuccessful operation,error:"+error);
+            });
+        }
+        // insBtn.addEventListener("click",AddDocument_AutoID);
+        
+        async function GetADocument(){
+            var ref=doc(db,"TheStudentList",Rollbox.value);
+            const docSnap=await getDoc(ref);
+            if(docSnap.exists()){
+                Namebox.value=docSnap.data().NameOfStd;
+                Secbox.value=docSnap.data().Section;
+                Genbox.value=docSnap.data().Gender;
+            }
+            else{
+                alert("No such Document")
+            }
+        }
+
+        async function UpdateFieldsInADocument(){
+            var ref=doc(db,"TheStudentList",Rollbox.value);
+            await updateDoc(
+                ref,{
+                    NameOfStd:Namebox.value,
+                    Section:Secbox.value,
+                    Gender:Genbox.value  
+                }
+            )
+            .then(()=>{
+                alert("Data updated successfully");
+            })
+            .catch((error)=>{
+                alert("Unsuccessful operation,error:"+error);
+            });
+        }
+        async function DeleteDocument(){
+            var ref=doc(db,"TheStudentList",Rollbox.value);
+            const docSnap=await getDoc(ref);
+            if(!docSnap.exists()){
+             alert("document does not exist");
+             return;
+            }
+            await deleteDoc(ref)
+            .then(()=>{
+                alert("data deleted successfully");
+            })
+            .catch((error)=>{
+                alert("unsuccessful operation,error:"+error);
+            })
+        }
+        insBtn.addEventListener("click",AddDocument_CustomID);
+        selBtn.addEventListener("click",GetADocument);
+        updBtn.addEventListener("click",UpdateFieldsInADocument);
+        delBtn.addEventListener("click",DeleteDocument);
+      </script>
+</body>
+</html>
